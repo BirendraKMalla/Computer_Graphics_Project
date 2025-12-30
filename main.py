@@ -1,10 +1,13 @@
 import pygame
+import time
 import math
 from bresenham import bresenham
 
 width,height=1280,720
+background_color = (0,0,0)
 
-#initialize line properties
+#startize line properties
+rotating_line = True
 x_origin = 50
 y_origin = height - 50
 length = 150
@@ -14,7 +17,9 @@ speed = 1
 direction = 1
 
 firing = False
-fire_speed = 10
+fire_speed = 20
+
+
 
 # pygame setup
 pygame.init()
@@ -28,19 +33,19 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE and not firing:
+            if event.key == pygame.K_SPACE:
                 firing = True
                 firing_angle = math.radians(angle)
-                x_tip = int(x_origin + length * math.cos(firing_angle))
-                y_tip = int(y_origin - length * math.sin(firing_angle))
-                initial_x = x_origin
-                initial_y = y_origin
+                shot_x2 = int(x_origin + length * math.cos(firing_angle))
+                shot_y2 = int(y_origin - length * math.sin(firing_angle))
+                shot_x1 = x_origin
+                shot_y1 = y_origin
 
     #clear the screen for eaach frame
-    screen.fill((0, 0, 0))
+    screen.fill(background_color)
     
     #rotation logic
-    if(not firing):
+    if(rotating_line):
         angle += speed * direction
         if(angle >= 90):
             angle=90
@@ -50,31 +55,35 @@ while running:
             direction = 1
 
         rad = math.radians(angle)
-        x_tip = int(x_origin + length * math.cos(rad)) 
-        y_tip = int(y_origin - length * math.sin(rad))
+        aim_x = int(x_origin + length * 0.7 * math.cos(rad)) 
+        aim_y = int(y_origin - length * 0.7 * math.sin(rad))
         
     #line firing logic
-    elif(firing):
-        x_tip += int(fire_speed * math.cos(firing_angle))
-        y_tip -= int(fire_speed * math.sin(firing_angle))
-        initial_x += int(fire_speed * math.cos(firing_angle))
-        initial_y -= int(fire_speed * math.sin(firing_angle))
+    if(firing):
+        shot_x1 += int(fire_speed * math.cos(firing_angle))
+        shot_y1 -= int(fire_speed * math.sin(firing_angle))
+        shot_x2 += int(fire_speed * math.cos(firing_angle))
+        shot_y2 -= int(fire_speed * math.sin(firing_angle))
         # stop when off screen
-        if initial_x > width or initial_y < 0:
+        if shot_x1 > width or shot_y1 < 0:
             firing = False
+            shot_x2 = int(x_origin + length * math.cos(firing_angle)) 
+            shot_y2 = int(y_origin - length * math.sin(firing_angle))
             
 
 
 
     #sets pixels on the screen
-    if(not firing):
-        points = bresenham(x_origin, y_origin, x_tip, y_tip)
+    if(rotating_line):
+        points = bresenham(x_origin, y_origin, aim_x, aim_y)
         for p in points:
             screen.set_at(p, (255,255,255))
-    else:
-        points = bresenham(initial_x, initial_y, x_tip, y_tip)
+
+    if(firing):
+        points = bresenham(shot_x1, shot_y1, shot_x2, shot_y2)
         for p in points:
             screen.set_at(p, (255,255,255))
+    
     # flip() the display to put your work on screen
     pygame.display.flip()
 
