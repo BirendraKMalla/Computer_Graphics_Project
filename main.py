@@ -1,6 +1,7 @@
 import pygame
 import math
 from bresenham import bresenham
+from rotation import rotation
 
 width, height = 1280, 720
 background_color = (0, 0, 0)
@@ -9,19 +10,22 @@ background_color = (0, 0, 0)
 rotating_line = True
 x_origin = 50
 y_origin = height - 50
-length = 150
+length = 100
+x_end = x_origin + length
+y_end = y_origin
 
 angle = 0
 speed = 1
-direction = 1
 
-firing = False
+
+
 fire_speed = 20
-
 # shot coordinates (needed before loop)
 firing_angle = 0
-
 shots = []
+
+#fired arrow properties
+fired_arrow_length = 40
 
 # pygame setup
 pygame.init()
@@ -42,12 +46,11 @@ while running:
                 shots.append({
                     "x1": x_origin,
                     "y1": y_origin,
-                    "x2": int(x_origin + length * math.cos(firing_angle)),
-                    "y2": int(y_origin - length * math.sin(firing_angle)),
+                    "x2": int(x_origin + fired_arrow_length * math.cos(firing_angle)),
+                    "y2": int(y_origin - fired_arrow_length * math.sin(firing_angle)),
                     "angle": firing_angle
                 })
             
-    
 
     screen.fill(background_color)
     #logic to manually control the anlge of line (needle)
@@ -67,37 +70,20 @@ while running:
 
     # rotation logic
     if rotating_line:
-        # angle += speed * direction
-        # if angle >= 90:
-        #     angle = 90
-        #     direction = -1
-        # elif angle <= 0:
-        #     angle = 0
-        #     direction = 1
         rad = math.radians(angle)
-        aim_x = int(x_origin + length * 0.7 * math.cos(rad))  #the scalar is for pointer length
-        aim_y = int(y_origin - length * 0.7 * math.sin(rad))
-
-    # firing logic
-    if firing:
-        dx = int(fire_speed * math.cos(firing_angle))
-        dy = int(fire_speed * math.sin(firing_angle))
-
-        shot_x1 += dx
-        shot_y1 -= dy
-        shot_x2 += dx
-        shot_y2 -= dy
-
-        if shot_x1 > width or shot_y1 < 0:
-            firing = False
-            shot_x1 = shot_y1 = 0
-            shot_x2 = shot_y2 = 0
+        rotating_end_points = rotation(x_end, y_end, x_origin, y_origin, -rad)
+        aim_x = int(rotating_end_points[0])
+        aim_y = int(rotating_end_points[1])
+    
+        # aim_x = int(x_origin + length * 0.7 * math.cos(rad))  #the scalar is for pointer length
+        # aim_y = int(y_origin - length * 0.7 * math.sin(rad))
 
     # draw aim line
     if rotating_line:
         for p in bresenham(x_origin, y_origin, aim_x, aim_y):
             screen.set_at(p, (255, 255, 255))
 
+    # draw the fired lines
     for shot in shots[:]:
         dx = int(fire_speed * math.cos(shot["angle"]))
         dy = int(fire_speed * math.sin(shot["angle"]))
