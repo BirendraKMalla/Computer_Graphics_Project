@@ -14,3 +14,11 @@ This project specifically avoids high-level drawing libraries for core primitive
 - Midpoint Ellipse Algorithm: Powers the drawing of balloons, clouds, and power-up icons.
 - 2D Rotation: Implemented via rotation matrices for the firing needle and particle fragments.
 - Physics Engine: Includes basic gravity simulation, sine-wave wind frequency, and collision detection.
+
+- Installation & Setup
+
+Clone the repository: bash git clone cd BalloonPoppingGame
+
+Install Dependencies: Ensure you have Python 3.10+ and Pygame installed. bash pip install pygame
+
+Run the Game: bash python main.py
